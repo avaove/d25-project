@@ -51,5 +51,6 @@ In the paper “Reddit in the Time of COVID”, they trained using the model Pro
 We will use line graphs to track the trajectory of different sentiments across the months, as well as the pandemic predictions from Prophet. We can use bar graphs (including stacked), area charts, or pie charts to compare the prominence of certain sentiments before or during the pandemic because sentiments are a categorical nominal data type. We used scatter plots to display the correlation between different sentiments for a segment of pre-pandemic post titles, we can also implement this idea for post-pandemic Reddit posts and comments. 
 
 **Organization within the team**:
+
 We got on a call together at the beginning to brainstorm our ideas and split up tasks. We try to split up the work so that it’s not completely dependent on one person to finish their task for the other person to progress but if this happens, the person who can’t proceed works on the writing portion, such as the README.
 
