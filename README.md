@@ -1,5 +1,7 @@
 # Analyzing Reddit's Sentimental Shifts during COVID-19
 
+Find the data story here! https://descriptive-radon-869.notion.site/Analyzing-Reddit-s-Sentimental-Shifts-during-COVID-19-881f3fb7e00d4c90acc7e021e8e719ee?pvs=4
+
 ## Abstract
 
 The COVID-19 pandemic was an emotionally charged event which introduced major changes in people’s lives. In this project, we explore whether the pandemic changed how Reddit users share their thoughts in posts and comments, and which emotions were most dominant in their activities. We want to uncover how the emotions of users during the pandemic might have influenced the sentiments expressed in their activities on the platform.
