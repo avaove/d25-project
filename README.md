@@ -9,8 +9,7 @@ We aim to compare how people felt through analyzing activities related to COVID 
 ## Research Questions
 
 1. Primary: What are the dominant emotions expressed by users during the pandemic as compared to before the pandemic? 
-2. Did some subreddits show more shifts in sentiments compared to others during the pandemic?
-3. What are the primary sentiments in comments to COVID-specific posts* and does it differ from the average sentiment score of a pre-pandemic post?
+2. What are the primary sentiments in comments to COVID-specific posts* and does it differ from the average sentiment score of a pre-pandemic post?
 
 *We find a COVID specific post by filtering all posts that contain words related to COVID. The notebook specifies the details on how this was done.
 
@@ -19,34 +18,42 @@ We will not be using additional datasets, only the Reddit dataset provided to us
 
 ### Loading and Managing Sizes of Datasets
 
-We are primarily using text_comments and text_submissions, which are very large files. text_comments.csv is especially large and in order to load it, we first load it in chunks and process the data before putting it in data frames. Then, we try to make each chunk smaller by dropping unneeded columns, like score, and some of our data cleaning techniques, such as our removal of bot or deleted comments, reduce the size as well. We also store the data for comments and submissions in two data frames each, one for pre-covid entries and one for post-covid entries, where the date is February 1, 2020. This allows us to deal with smaller dataframes and if we need the full data, we can concatenate them. Additionally, to avoid having to go through the whole time-consuming process each time, we save the data frames on our computers as csv files and simply load it up from there because they are much smaller in size than the original csv files.
+We are primarily using `text_submissions`, which is a very large file. We store the data for submissions in two data frames, one for pre-covid entries and one for post-covid entries, where the date to split is February 1, 2020. This allows us to deal with smaller dataframes and if we need the full data, we can concatenate them. 
+
+Our DistilBERT model also took a lot of time to assign sentiment scores for each and every submission in the 3 dataframes (pre-covid, post-covid, post-covid covid-related). It was taking way too much time and power from our laptops to do this for the entire post-covid dataframe, so we instead found the sentiments for 175k random submissions, about 37% of the entire dataframe. To avoid having to go through the whole time-consuming process each time, we save these dataframes with processed text_submission information and sentiment scores on our computers as csv files and simply load it up from there.
 
 ## Pre-Processing & Cleaning-up Data
 
-We took certain pre-processing steps to clean up, filter, and transform the data and make it more useful for our exploration. Similar to the original paper “Reddit in the Time of COVID”, we removed comments which can ‘bot’ or ‘mod’ in the author name, case insensitive, to remove bot comments. We also removed comments whose bodies were [removed] or [deleted] because we cannot analyze those. Similarly, we removed submissions which had nan titles or self-text because they were not useful to us. Filtering out these rows also helps us reduce the size of the dataframes. 
+We took certain pre-processing steps to clean up, filter, and transform the data and make it more useful for our exploration. Similar to the original paper “Reddit in the Time of COVID”, we removed submissions which can ‘bot’ or ‘mod’ in the author name, case insensitive, to remove bot posts. We also removed submissions whose bodies were [removed] or [deleted] because we cannot analyze those. Similarly, we removed submissions which had NaN or empty titles, self-text, or created_utc because they were not useful to us. Certain columns (['author', 'domain', 'is_self', 'score', 'subreddit']) were also not necessary for our analysis and were dropped. Filtering out these rows and columns also helps us reduce the size of the dataframes. 
 
 ## Methods
 
 [DistilBERT](https://huggingface.co/docs/transformers/model_doc/distilbert) is the library that we will be using to give textual data sentiment scores. The model is a smaller, cheaper, and lighter version of BERT and can provide probabilities (between 0-1) or scores indicating the likelihood of certain emotions being present in the analyzed text. The model provides scores for the following emotions based on the text given: sadness, joy, love, anger, fear, surprise.
 
 We will be using this library for exploratory purposes as well as the modeling steps. 
-Also, note that when talking about a “post's activity” or “activity” we mean the post's text body and its comments.
+Also, note that when talking about a “post's activity” or “activity” we mean the post's text body.
 
 ### Exploratory Analysis and Statistical Summaries
 
 - **Average sentiments of Pre-pandemic Posts:** We thought that it would be interesting to analyze pre-pandemic Reddit activity and treat it as our “baseline” before moving onto analyzing activity during the pandemic. One way of doing this is to get the sentiment score of each pre-pandemic activity for each sentiment and get the average sentiment score across all posts. This can set us the baseline sentiments per activity. We can similarly calculate the average values for activity during the pandemic and compare these averages.
-- **Frequency Distribution Analysis:** After getting the average of sentiment scores for pre-pandemic activity, we can count the activities that have higher and lower sentiment scores than the average. This can, for instance, roughly show us if there is a huge increase in posts with a higher than average sadness score or with a lower than average joy score. If these changes are significant enough, we may reason that they might be due to COVID as an emotionally charged event. 
+- **Frequency Distribution Analysis:** After getting the average of sentiment scores for pre-pandemic activity, we can count the activities that have higher and lower sentiment scores than the average.
 - **Correlations between Sentiments:** Another interesting exploration would be to see how much sentiments correlate to each other. For instance, if plotting sadness and joy we should be able to see a moderate to strong inverse correlation between the two.
+
 
 ### Modeling Approaches
 
-In the paper “Reddit in the Time of COVID”, they trained using the model Prophet on the data pre-covid and predicted the activity from Feb 1 2020 (the assumed start time of COVID) onwards. In our case, we will also use Prophet to train the data based on each sentiment, such as joy and sadness, in order to see the trends of pre-Covid comments and posts on a monthly basis. Then, we will use the model to predict the trajectory of each sentiment and compare it with the real sentiments from the data Feb 1, 2020 onwards.
+Our goal is to model pre-pandemic submission sentiment scores for each sentiment and see if post-pandemic submission scores follow our models prediction. We wanted to model by simply fitting a best fit polynomial to pre-pandemic data for each sentiment using numpy’s polyfit function. But considering the size of the pre-pandemic sentiment data, and that we had to experiment with multiple polynomial degrees, and do this for each sentiment, this was too expensive for us. But by plotting sentiment scores, we could visually see general trends for pre-pandemic sentiment scores. 
 
 ### Visualization techniques
 
-We will use line graphs to track the trajectory of different sentiments across the months, as well as the pandemic predictions from Prophet. We can use bar graphs (including stacked), area charts, or pie charts to compare the prominence of certain sentiments before or during the pandemic because sentiments are a categorical nominal data type. We used scatter plots to display the correlation between different sentiments for a segment of pre-pandemic post titles, we can also implement this idea for post-pandemic Reddit posts and comments. 
+We also created graphs to show how some sentiments correlate with each other. We chose pairs of sentiments that might show an interesting pattern, particularly ones that we thought would have strong correlation, or strong inverse correlation. Plotting the correlations can show patterns or relationships between emotions. It helps in understanding how certain emotions might influence others.
+
+We used pie charts to compare the prominence of certain sentiments before and during the pandemic, as well as specifically Covid-related posts, because sentiments are a categorical nominal data type. We used bar graphs to compare different sentiment averages, such as a stacked bar graph to show the number of submissions which were higher or lower than the average sentiment pre-pandemic and a bar graph that compares average sentiment in an average submission during the pandemic vs an average Covid-related submission.
+
+Finally, for each sentiment we plot the sentiment scores of the `title` of the submissions across pre-pandemic and pandemic periods. This allows us to notice any trends and patterns present in the pre-pandemic sentiment data and compare these trends to those present in pandemic sentiment data. We can do this using the modeling approaches explained previously. Ideally, we wanted to do this for the `selftext` column which contains the body of the submissions as well, but the sentiment model had a limit to the number of characters
+it could process and a lot of the submissions had bodies of text that went over this limit. We know there is a solution to this problem, but we were limited in time and didn't process the bodies.
 
 ## Organization within the team
 
-We got on a call together at the beginning to brainstorm our ideas and split up tasks. We try to split up the work so that it’s not completely dependent on one person to finish their task for the other person to progress but if this happens, the person who can’t proceed works on the writing portion, such as the README.
+We got on a call together at the beginning to brainstorm our ideas and split up tasks. We split up the tasks based on who will be tackling which research question or which of the visualizations that we have discussed, such as Fariha works on the pie charts for primary sentiments while Ava works on modeling sentiments over time. The person who does a specific visualization writes about it in the README or data story while we both answer the other sections.
 
